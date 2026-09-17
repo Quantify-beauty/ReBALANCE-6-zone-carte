@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ReBALANCE 6-Zone Recipe Carte</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Klee+One:wght@400;600&family=BIZ+UDGothic:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f8f6f2; --white:#fff; --border:#e0dbd0; --border2:#ccc7bc;
+  --text:#1a1a1a; --muted:#999; --light:#f0ede8; --section:#f4f1ec;
+  --gold:#c8a96e; --gold2:#a8844a;
+  --red:#a75252; --blue:#52698f; --green:#61765a; --orange:#e67e22;
+  --shadow:0 4px 24px rgba(0,0,0,.08);
+  --serif:'Cormorant Garamond',serif; --klee:'Klee One',serif;
+  --sans:'BIZ UDGothic',sans-serif; --mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg)}
+body{color:var(--text);font-family:var(--sans);min-height:100vh;padding-bottom:60px}
+
+#pw-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
+.pw-box{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:40px 32px;width:90%;max-width:340px;text-align:center}
+.pw-logo{font-family:var(--serif);font-size:24px;font-weight:300;letter-spacing:.18em;margin-bottom:4px}
+.pw-rule{width:32px;height:1px;background:var(--gold);margin:8px auto}
+.pw-sub{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:22px}
+.pw-inp{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:13px 18px;font-size:18px;text-align:center;letter-spacing:.2em;outline:none;color:var(--text);margin-bottom:12px;font-family:var(--sans)}
+.pw-inp:focus{border-color:var(--gold)}
+.pw-btn{width:100%;background:var(--text);color:#fff;border:none;border-radius:8px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans)}
+.pw-err{font-size:12px;color:var(--red);margin-top:8px;min-height:18px}
+
+.app-header{background:var(--white);border-bottom:1px solid var(--border);padding:20px 18px 16px;text-align:center;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.05)}
+.app-logo{font-family:var(--serif);font-size:24px;font-weight:300;letter-spacing:.16em}
+.app-rule{width:28px;height:1px;background:var(--gold);margin:6px auto}
+.app-sub{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.app-ver{font-size:10px;color:var(--gold);font-family:var(--mono);margin-top:2px}
+
+.container{padding:0 16px;max-width:640px;margin:0 auto}
+.card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;margin:16px 0;overflow:hidden}
+.card-hdr{background:var(--section);padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.card-num{width:32px;height:32px;border-radius:50%;background:var(--text);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+.card-title{font-family:var(--klee);font-size:16px;font-weight:600}
+.card-desc{font-size:11px;color:var(--muted);padding:8px 18px 0}
+.card-body{padding:16px 18px}
+
+.opt-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px}
+
+.curl-row{display:flex;gap:8px;margin-bottom:4px}
+.curl-card{flex:1 1 0;display:flex;flex-direction:column;align-items:stretch;gap:7px;background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:9px 6px 10px;cursor:pointer}
+.curl-card.selected{border-color:var(--gold);background:rgba(200,169,110,.08);box-shadow:0 0 0 1px var(--gold) inset}
+.curl-illust-box{background:var(--section);border-radius:9px;height:52px;display:flex;align-items:center;justify-content:center}
+.curl-illust-box svg{width:90%;height:70%}
+.curl-radio-row{display:flex;align-items:center;gap:6px;justify-content:center}
+.curl-radio{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--muted);flex-shrink:0;position:relative}
+.curl-radio.on{border-color:var(--gold)}
+.curl-radio.on::after{content:"";position:absolute;inset:2.5px;border-radius:50%;background:var(--gold)}
+.curl-radio-row .clabel{font-size:12px;font-weight:700;color:var(--text)}
+.opt-btn{flex:1 1 0;min-width:56px;border:1.5px solid var(--border);border-radius:10px;padding:10px 4px;font-size:12.5px;font-weight:700;background:var(--white);cursor:pointer;text-align:center;font-family:var(--sans);transition:all .15s}
+.opt-btn.selected{border-color:var(--gold);background:rgba(200,169,110,.14)}
+.opt-btn:hover:not(.selected){background:var(--light)}
+.subgroup{margin-bottom:14px}
+.subgroup:last-child{margin-bottom:0}
+.subgroup-title{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:7px;letter-spacing:.04em}
+.subq{margin-top:8px;padding:10px 12px;border-radius:10px;background:var(--light)}
+.hidden{display:none!important}
+.virgin-note{margin-top:8px;padding:10px 12px;border-radius:10px;background:#fbe9dd;font-size:11.5px;line-height:1.6}
+
+.tr-box{margin-top:14px;padding:14px;border-radius:12px;background:var(--section);text-align:center;box-shadow:inset 0 0 0 1px var(--border)}
+.tr-box .lbl{font-size:11px;color:var(--muted)}
+.tr-box .val{font-family:var(--mono);font-size:28px;font-weight:600;color:var(--gold2);margin-top:2px}
+.tr-box .val span{font-size:14px}
+.push-btn{display:block;width:100%;margin-top:10px;padding:11px;border-radius:10px;border:none;background:var(--text);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)}
+.push-btn:hover{background:var(--gold2)}
+
+.zone-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-bottom:1px solid var(--border)}
+.zone-tab{padding:11px 2px;font-size:12px;font-weight:700;text-align:center;background:var(--light);color:var(--muted);border:none;border-right:1px solid var(--border);border-bottom:2px solid transparent;cursor:pointer;font-family:var(--sans)}
+.zone-tab:nth-child(3n){border-right:none}
+.zone-tab.active{background:var(--white);color:var(--text)}
+.zone-tab.group-depth.active{border-bottom-color:#8a8a8a}
+.zone-tab.group-shape.active{border-bottom-color:var(--gold)}
+.zone-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+
+.zone-panel{padding:16px 18px}
+.policy-row{display:flex;gap:8px;margin-bottom:8px}
+.policy-btn{flex:1;padding:12px;font-size:13.5px;font-weight:700;border:2px solid var(--border);border-radius:10px;background:var(--white);cursor:pointer;font-family:var(--klee)}
+.policy-btn.selected{border-color:var(--red);background:rgba(167,82,82,.08)}
+.policy-btn.pu.selected{border-color:var(--blue);background:rgba(82,105,143,.08)}
+.policy-warn{display:none;font-size:11px;color:var(--red);background:#fbeeee;padding:8px 10px;border-radius:8px;margin-bottom:10px;line-height:1.6}
+.policy-warn.show{display:block}
+.ds-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.ds-card{border:1.5px solid var(--border);border-radius:10px;padding:9px 4px;text-align:center;font-size:11.5px;font-weight:700;cursor:pointer;background:var(--white)}
+.ds-card small{display:block;font-weight:400;color:var(--muted);font-size:9.5px;margin-top:2px;font-family:var(--mono)}
+.ds-card.selected{border-color:var(--gold);background:rgba(200,169,110,.12)}
+.ratio-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-bottom:12px}
+.ratio-row input{width:44px;padding:6px 4px;text-align:center;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--mono)}
+.field-pair{display:flex;gap:10px;margin-bottom:4px}
+.field-pair .f{flex:1}
+.field-pair label{display:block;font-size:10.5px;color:var(--muted);margin-bottom:4px;font-weight:700}
+.field-pair input{width:100%;padding:11px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-family:var(--mono);text-align:center}
+.recipe-result{margin-top:14px;padding-top:12px;border-top:1px dashed var(--border)}
+.rline{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0}
+.rline .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+.rline .amt{font-weight:800;font-family:var(--mono)}
+.rtotal{margin-top:8px;padding:10px;border-radius:8px;background:var(--section);text-align:center;font-size:12px;color:var(--muted)}
+.rtotal b{color:var(--text);font-size:16px;font-family:var(--mono)}
+.rempty{font-size:12px;color:var(--muted);text-align:center;padding:10px 0}
+
+.record-body{padding:18px}
+.zsum-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:11.5px}
+.zsum-table tr{border-bottom:1px solid var(--border)}
+.zsum-table tr:last-child{border-bottom:none}
+.zsum-table td{padding:9px 4px;vertical-align:middle}
+.zsum-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.zsum-label{font-size:12.5px;font-weight:700;white-space:nowrap;width:1%;padding-right:10px!important}
+.zsum-detail{color:var(--muted);line-height:1.5}
+.zsum-tr{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--gold2);text-align:right;white-space:nowrap;width:1%;padding-left:10px!important}
+.frame-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;margin:14px 0 8px}
+
+.share-btn{display:block;width:calc(100% - 32px);margin:0 auto 8px;padding:13px;border-radius:12px;border:none;background:var(--text);color:#fff;font-size:13.5px;font-weight:700;cursor:pointer;font-family:var(--sans)}
+.share-status{text-align:center;font-size:11px;color:var(--green);min-height:16px;margin-bottom:10px}
+.disclaimer{margin:20px 16px 0;padding:16px 14px;border-radius:14px;background:var(--section);font-size:10.5px;line-height:1.75;color:var(--muted)}
+.disclaimer h3{font-size:11.5px;margin-bottom:8px;color:var(--text)}
+.disclaimer p{margin-bottom:4px}
+</style>
+</head>
+<body>
+
+<div id="pw-screen">
+  <div class="pw-box">
+    <div class="pw-logo">ReBALANCE</div>
+    <div class="pw-rule"></div>
+    <div class="pw-sub">6-Zone Recipe Carte</div>
+    <input class="pw-inp" id="pw-inp" type="password" placeholder="PASSWORD">
+    <button class="pw-btn" onclick="checkPW()">入室する</button>
+    <div class="pw-err" id="pw-err"></div>
+  </div>
+</div>
+
+<div class="app-header">
+  <div class="app-logo">ReBALANCE</div>
+  <div class="app-rule"></div>
+  <div class="app-sub">6-Zone Recipe Carte</div>
+  <div class="app-ver">v1.0</div>
+</div>
+
+<div class="container">
+
+  <!-- ① 毛髪診断（共有コード・目安還元値用） -->
+  <div class="card">
+    <div class="card-hdr"><div class="card-num">1</div><div class="card-title">毛髪診断（共有コード記録用）</div></div>
+    <div class="card-desc">Recipe App方式の診断です。目標還元値の目安を算出します（実際の6箇所レシピ計算には②で個別に還元値を入力します）</div>
+    <div class="card-body">
+      <div class="subgroup">
+        <div class="subgroup-title">① 髪の毛の太さ</div>
+        <div class="opt-row" id="row-thickness"></div>
+      </div>
+      <div class="subgroup">
+        <div class="subgroup-title">② 髪の毛の硬さ</div>
+        <div class="opt-row" id="row-hardness"></div>
+      </div>
+      <div class="subgroup">
+        <div class="subgroup-title">③ 癖の強さ</div>
+        <div class="curl-row" id="row-curl"></div>
+      </div>
+      <div class="subgroup">
+        <div class="subgroup-title">a. 髪の毛の明度</div>
+        <div class="opt-row" id="row-alevel"></div>
+        <div class="subq hidden" id="subq-somegami">
+          <div class="subgroup-title">黒染め歴はありますか？</div>
+          <div class="opt-row" id="row-somegami"></div>
+        </div>
+        <div class="subq hidden" id="subq-bleachhist">
+          <div class="subgroup-title">その黒染めの前にブリーチ歴はありますか？</div>
+          <div class="opt-row" id="row-bleachhist"></div>
+        </div>
+        <div class="virgin-note hidden" id="virgin-note">バージン毛相当のため、b〜dの質問は不要です。</div>
+      </div>
+      <div class="subgroup" id="group-bcd">
+        <div class="subgroup-title">b. ブリーチ回数</div>
+        <div class="opt-row" id="row-bleach"></div>
+      </div>
+      <div class="subgroup" id="group-c">
+        <div class="subgroup-title">c. 縮毛矯正・パーマ頻度</div>
+        <div class="opt-row" id="row-perm"></div>
+      </div>
+      <div class="subgroup" id="group-d">
+        <div class="subgroup-title">d. ウェット時のハリコシ</div>
+        <div class="opt-row" id="row-koshi"></div>
+      </div>
+      <div class="subgroup">
+        <div class="subgroup-title">ご要望</div>
+        <div class="opt-row" id="row-need"></div>
+      </div>
+
+      <div class="tr-box" id="tr-box" style="display:none">
+        <div class="lbl">目標還元値（目安）</div>
+        <div class="val" id="tr-val">—<span>%</span></div>
+        <button class="push-btn" onclick="pushTRtoZones()">この目安値を6箇所すべてに反映する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 6箇所 薬剤レシピ計算 -->
+  <div class="card">
+    <div class="card-hdr"><div class="card-num">2</div><div class="card-title">6箇所 薬剤レシピ計算</div></div>
+    <div class="card-desc">毛髪診断を参考に、各箇所の還元値を美容師が個別に入力し、伸び重視／ケア重視も箇所ごとに選択します</div>
+    <div class="zone-tabs" id="zone-tabs"></div>
+    <div id="zone-panels"></div>
+  </div>
+
+  <!-- ③ 記録（頭の形に分類） -->
+  <div class="card">
+    <div class="card-hdr"><div class="card-num">3</div><div class="card-title">記録（頭の形に分類）</div></div>
+    <div class="card-desc">前髪／ヘムライン／トップの3箇所と、根本・中間・毛先の3箇所を別枠の表で記録します</div>
+    <div class="record-body">
+      <div class="frame-title">前髪・ヘムライン・トップ</div>
+      <table class="zsum-table" id="shape-summary"></table>
+      <div class="frame-title">根本・中間・毛先（別枠）</div>
+      <table class="zsum-table" id="depth-summary"></table>
+    </div>
+  </div>
+
+  <button class="share-btn" id="share-btn">診断・6箇所レシピをコピー（LINE等で共有）</button>
+  <p class="share-status" id="share-status"></p>
+
+  <div class="disclaimer">
+    <h3>■ 本ツールについての重要事項</h3>
+    <p>・本ツールは、各メーカー様が公表されている薬剤スペックをもとに、混合時の還元剤濃度を計算するための補助ツールです。</p>
+    <p>・本ツールは、各メーカー様による公式な認証・後援を受けたものではありません。本ツールの内容について、各メーカー様は一切の責任を負うものではありません。</p>
+    <p>・本ツール上に表示される濃度・成分情報は、推計値を含みます。正確な値については、必ず各メーカー様の製品資料・指示に従ってください。</p>
+    <p>・毛髪診断の目標還元値はあくまで目安であり、実際の薬剤選定・還元値設定は担当美容師の診断・判断のもとで行ってください。</p>
+    <p>・本ツール内で言及される製品名・商品名は、各メーカー様の商標・登録商標です。本ツールは、これらの製品を識別する目的のみで使用しており、商標権者との商業的関係を示すものではありません。</p>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   パスワード保護
+   ================================================================ */
+const PW_KEY='rb6z_auth';
+function checkPW(){
+  const v=document.getElementById('pw-inp').value;
+  if(v==='imu1120box'){
+    sessionStorage.setItem(PW_KEY,'1');
+    document.getElementById('pw-screen').style.display='none';
+  } else {
+    document.getElementById('pw-err').textContent='⚠️ パスワードが違います';
+    document.getElementById('pw-inp').value='';
+    document.getElementById('pw-inp').focus();
+  }
+}
+if(sessionStorage.getItem(PW_KEY)==='1'){ document.getElementById('pw-screen').style.display='none'; }
+
+/* ================================================================
+   薬剤マスタ（digital carte 2.71 準拠）
+   ================================================================ */
+const DRUGS={
+  yellow:{name:'Yellow',      tga:0.4, cam:0,    tg:0.4, color:'#c8a800'},
+  pale:  {name:'Pale Yellow', tga:0,   cam:0,    tg:0.2, color:'#3a8a4a'},
+  riko:  {name:'RIKO Treatment',tga:0, cam:0,    tg:0,   color:'#c8a96e'},
+  black: {name:'Black (SH)',  tga:10.8,cam:0,    tg:0,   color:'#2a2a4a'},
+  brown: {name:'Brown (M)',   tga:9.0, cam:0,    tg:0,   color:'#7a4a1a'},
+  light: {name:'Light Brown', tga:7.0, cam:0,    tg:0,   color:'#8a7020'},
+  booster:{name:'Booster',    tga:0,   cam:29.0, tg:0,   color:'#1a1a2a'},
+};
+function totDrug(d){ return d.tga+d.cam+d.tg; }
+
+/* ================================================================
+   6箇所の定義
+   ================================================================ */
+const PARTS=[
+  {id:'root',    label:'根本',      group:'depth', color:'#8a8a8a'},
+  {id:'middle',  label:'中間',      group:'depth', color:'#8a8a8a'},
+  {id:'end',     label:'毛先',      group:'depth', color:'#8a8a8a'},
+  {id:'bangs',   label:'前髪',      group:'shape', color:'#a75252'},
+  {id:'hemline', label:'ヘムライン', group:'shape', color:'#52698f'},
+  {id:'top',     label:'トップ',    group:'shape', color:'#61765a'},
+];
+let currentZone='root';
+const policyState={}; const pdBaseState={}; const lastRecipe={};
+PARTS.forEach(p=>{ policyState[p.id]=null; pdBaseState[p.id]=null; lastRecipe[p.id]=null; });
+
+/* ---- タブ生成 ---- */
+(function(){
+  const tabsEl=document.getElementById('zone-tabs');
+  PARTS.forEach(p=>{
+    const b=document.createElement('button');
+    b.className='zone-tab group-'+p.group+(p.id==='root'?' active':'');
+    b.id='tab-'+p.id;
+    b.innerHTML=`<span class="zone-dot" style="background:${p.color}"></span>${p.label}`;
+    b.onclick=()=>switchZone(p.id);
+    tabsEl.appendChild(b);
+  });
+})();
+function switchZone(id){
+  currentZone=id;
+  PARTS.forEach(p=>{
+    document.getElementById('tab-'+p.id).classList.toggle('active',p.id===id);
+    document.getElementById('panel-'+p.id).style.display=(p.id===id)?'block':'none';
+  });
+}
+
+/* ---- パネル生成 ---- */
+(function(){
+  const panelsEl=document.getElementById('zone-panels');
+  PARTS.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='zone-panel';
+    div.id='panel-'+p.id;
+    div.style.display=(p.id==='root')?'block':'none';
+    div.innerHTML=`
+      <div class="policy-row">
+        <button class="policy-btn pd" id="btn-${p.id}-pd" onclick="selPolicy('${p.id}','pd')">伸び重視</button>
+        <button class="policy-btn pu" id="btn-${p.id}-pu" onclick="selPolicy('${p.id}','pu')">ケア重視</button>
+      </div>
+      <div class="policy-warn" id="warn-${p.id}-pd">⚠️ 伸びを重視する場合、還元値が高めになり毛髪にダメージを与える可能性があります。アフターケアの準備も含めて万全の状態で取り組みましょう。</div>
+      <div id="pd-area-${p.id}" style="display:none">
+        <div class="ds-row">
+          <div class="ds-card" onclick="selPDBase('${p.id}','black',this)">Black<small>TGA10.8%</small></div>
+          <div class="ds-card" onclick="selPDBase('${p.id}','brown',this)">Brown<small>TGA9.0%</small></div>
+          <div class="ds-card" onclick="selPDBase('${p.id}','light',this)">Light Brown<small>TGA7.0%</small></div>
+        </div>
+        <div class="ratio-row">配合比：base
+          <input type="number" id="${p.id}-pd-r1" value="1" min="0" oninput="calcRecipe('${p.id}')">Yellow :
+          <input type="number" id="${p.id}-pd-r2" value="0" min="0" oninput="calcRecipe('${p.id}')">Pale :
+          <input type="number" id="${p.id}-pd-r3" value="0" min="0" oninput="calcRecipe('${p.id}')">RIKO
+        </div>
+      </div>
+      <div id="pu-area-${p.id}" style="display:none">
+        <div class="ratio-row">配合比：
+          <input type="number" id="${p.id}-pu-r1" value="1" min="0" oninput="calcRecipe('${p.id}')">Yellow :
+          <input type="number" id="${p.id}-pu-r2" value="0" min="0" oninput="calcRecipe('${p.id}')">Pale :
+          <input type="number" id="${p.id}-pu-r3" value="0" min="0" oninput="calcRecipe('${p.id}')">RIKO
+        </div>
+      </div>
+      <div class="field-pair">
+        <div class="f"><label>目標還元値（％）</label><input type="number" step="0.01" id="hp-${p.id}-adj" oninput="calcRecipe('${p.id}')"></div>
+        <div class="f"><label>作成量（g）</label><input type="number" step="0.1" id="total-${p.id}" oninput="calcRecipe('${p.id}')"></div>
+      </div>
+      <div class="recipe-result" id="recipe-result-${p.id}"><div class="rempty">方針・還元値・作成量を入力するとレシピが表示されます</div></div>
+    `;
+    panelsEl.appendChild(div);
+  });
+})();
+
+function selPolicy(part,p){
+  policyState[part]=p;
+  ['pd','pu'].forEach(x=>{
+    document.getElementById(`btn-${part}-${x}`).classList.remove('selected');
+    if(x==='pd') document.getElementById(`warn-${part}-pd`).classList.remove('show');
+    document.getElementById(`${x}-area-${part}`).style.display='none';
+  });
+  document.getElementById(`btn-${part}-${p}`).classList.add('selected');
+  if(p==='pd') document.getElementById(`warn-${part}-pd`).classList.add('show');
+  document.getElementById(`${p}-area-${part}`).style.display='block';
+  calcRecipe(part);
+}
+function selPDBase(part,key,el){
+  pdBaseState[part]=key;
+  document.querySelectorAll(`#pd-area-${part} .ds-card`).forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  calcRecipe(part);
+}
+
+/* ================================================================
+   レシピ計算（digital carte 2.71 の calcRecipe ロジックを6箇所へ拡張）
+   ================================================================ */
+function calcRecipe(part){
+  const pol=policyState[part];
+  const T=parseFloat(document.getElementById('total-'+part).value);
+  const tgt=parseFloat(document.getElementById('hp-'+part+'-adj').value);
+  const resEl=document.getElementById('recipe-result-'+part);
+  if(!pol||!T||T<=0||isNaN(tgt)){
+    resEl.innerHTML='<div class="rempty">方針・還元値・作成量を入力するとレシピが表示されます</div>';
+    lastRecipe[part]=null; renderRecordView(); return;
+  }
+  if(pol==='pd'){
+    const pdBase=pdBaseState[part];
+    if(!pdBase){ resEl.innerHTML='<div class="rempty">ベース剤（Black/Brown/Light Brown）を選択してください</div>'; lastRecipe[part]=null; renderRecordView(); return; }
+    const base=DRUGS[pdBase],boost=DRUGS.booster;
+    const M_tga=(base.tga*100+boost.tga*20)/120, M_cam=(base.cam*100+boost.cam*20)/120, M_tg=(base.tg*100+boost.tg*20)/120;
+    const Mt=M_tga+M_cam+M_tg;
+    const r1=parseFloat(document.getElementById(`${part}-pd-r1`).value)||0;
+    const r2=parseFloat(document.getElementById(`${part}-pd-r2`).value)||0;
+    const r3=parseFloat(document.getElementById(`${part}-pd-r3`).value)||0;
+    const sumR=r1+r2+r3||1;
+    const Y=DRUGS.yellow,P=DRUGS.pale,RK=DRUGS.riko;
+    const Ct=(Y.tga*r1+P.tga*r2)/sumR+(Y.tg*r1+P.tg*r2+RK.tg*r3)/sumR;
+    if(tgt<=Ct||tgt>=Mt){ resEl.innerHTML='<div class="rempty">目標還元値が範囲外です（'+Ct.toFixed(2)+'%〜'+Mt.toFixed(2)+'%の間で入力してください）</div>'; lastRecipe[part]=null; renderRecordView(); return; }
+    const Ma=T*(tgt-Ct)/(Mt-Ct), Ca=T-Ma;
+    const Aa=Ma*100/120, Ba=Ma*20/120;
+    const r1a=Ca*r1/sumR, r2a=Ca*r2/sumR, r3a=Ca*r3/sumR;
+    const pure_tga=(Aa*base.tga/100+r1a*Y.tga/100)/T*100;
+    const pure_cam=Ba*boost.cam/100/T*100;
+    const pure_tg=(Aa*base.tg/100+r1a*Y.tg/100+r2a*P.tg/100)/T*100;
+    showRecipe(part,tgt,[
+      {label:base.name,amt:Aa,color:base.color},
+      {label:'Booster',amt:Ba,color:boost.color},
+      ...(r1a>0?[{label:'Yellow',amt:r1a,color:Y.color}]:[]),
+      ...(r2a>0?[{label:'Pale Yellow',amt:r2a,color:P.color}]:[]),
+      ...(r3a>0?[{label:'RIKO Tr.',amt:r3a,color:RK.color}]:[]),
+    ],pure_tga,pure_cam,pure_tg);
+  } else {
+    const r1=parseFloat(document.getElementById(`${part}-pu-r1`).value)||0;
+    const r2=parseFloat(document.getElementById(`${part}-pu-r2`).value)||0;
+    const r3=parseFloat(document.getElementById(`${part}-pu-r3`).value)||0;
+    const sumR=r1+r2+r3||1;
+    const Y=DRUGS.yellow,P=DRUGS.pale,RK=DRUGS.riko,B=DRUGS.booster;
+    const baseTot=(Y.tga*r1+P.tga*r2)/sumR+(Y.tg*r1+P.tg*r2)/sumR;
+    const bTot=totDrug(B);
+    if(tgt<=baseTot||tgt>=bTot){ resEl.innerHTML='<div class="rempty">目標還元値が範囲外です（'+baseTot.toFixed(2)+'%〜'+bTot.toFixed(2)+'%の間で入力してください）</div>'; lastRecipe[part]=null; renderRecordView(); return; }
+    const boostAmt=T*(tgt-baseTot)/(bTot-baseTot), baseAmt=T-boostAmt;
+    const r1a=baseAmt*r1/sumR, r2a=baseAmt*r2/sumR, r3a=baseAmt*r3/sumR;
+    const pure_tga=r1a*Y.tga/100/T*100;
+    const pure_cam=boostAmt*B.cam/100/T*100;
+    const pure_tg=(r1a*Y.tg+r2a*P.tg)/100/T*100;
+    showRecipe(part,tgt,[
+      {label:'Booster',amt:boostAmt,color:B.color},
+      ...(r1a>0?[{label:'Yellow',amt:r1a,color:Y.color}]:[]),
+      ...(r2a>0?[{label:'Pale Yellow',amt:r2a,color:P.color}]:[]),
+      ...(r3a>0?[{label:'RIKO Tr.',amt:r3a,color:RK.color}]:[]),
+    ],pure_tga,pure_cam,pure_tg);
+  }
+}
+function showRecipe(part,totalConc,amts,tga,cam,tg){
+  const resEl=document.getElementById('recipe-result-'+part);
+  resEl.innerHTML=amts.map(a=>`<div class="rline"><span><span class="sw" style="background:${a.color}"></span>${a.label}</span><span class="amt">${a.amt.toFixed(1)}g</span></div>`).join('')
+    +`<div class="rtotal">総還元値 <b>${totalConc.toFixed(2)}%</b><br><span style="font-size:10px">TGA ${tga.toFixed(3)}% ／ CA ${cam.toFixed(3)}% ／ TGr ${tg.toFixed(3)}%</span></div>`;
+  lastRecipe[part]={pol:policyState[part],tgt:totalConc,amts,tga,cam,tg};
+  renderRecordView();
+}
+
+/* ================================================================
+   ① 毛髪診断（Recipe App のスコアリングを流用）
+   ================================================================ */
+const THICKNESS=[{code:'th1',label:'太',adj:10},{code:'th2',label:'普通',adj:0},{code:'th3',label:'細',adj:-5},{code:'th4',label:'極細',adj:-10}];
+const HARDNESS=[{code:'h1',label:'硬',adj:10},{code:'h2',label:'普通',adj:0},{code:'h3',label:'柔',adj:-5},{code:'h4',label:'極柔',adj:-10}];
+const CURL=[{code:'c1',label:'強',adj:10,cycles:4.5,amp:9},{code:'c2',label:'中',adj:0,cycles:2,amp:13},{code:'c3',label:'弱',adj:-10,cycles:1,amp:12}];
+const QUALITY_CAP=1.2;
+const A_LEVELS=[
+  {code:'a0',label:'ヘアカラー履歴なし',virgin:true,boost:25,tier:0},
+  {code:'kuro',label:'黒',virgin:null,boost:null,tier:null},
+  {code:'a2',label:'〜7LV',virgin:false,boost:20,tier:2},
+  {code:'a3',label:'〜10LV',virgin:false,boost:15,tier:3},
+  {code:'a4',label:'〜13LV',virgin:false,boost:10,tier:4},
+  {code:'a5',label:'〜16LV',virgin:false,boost:5,tier:5},
+  {code:'a6',label:'17LV〜',virgin:false,boost:2,tier:6},
+];
+const KURO_SUB={none:{code:'a1x',label:'地毛(バージン相当)',virgin:true,boost:25,tier:0}};
+const KURO_BLEACH_SUB={
+  no:{code:'a1y',label:'黒染め(ブリーチ歴なし)',virgin:false,boost:20,tier:2},
+  yes:{code:'a1z',label:'黒染め(ブリーチ歴あり)',virgin:false,boost:10,tier:4},
+};
+const BLEACH=[{code:'b1',label:'なし',mult:1.0,tier:0},{code:'b2',label:'1〜2回',mult:0.75,tier:1},{code:'b3',label:'3回〜',mult:0.2,tier:2}];
+const PERM=[{code:'c1',label:'なし',mult:1.0,tier:0},{code:'c2',label:'1〜3ヶ月毎',mult:0.8,tier:1},{code:'c3',label:'4〜6ヶ月毎',mult:0.9,tier:0.5}];
+const KOSHI=[{code:'d1',label:'あり',mult:1.0,tier:0},{code:'d2',label:'なし',mult:0.85,tier:1}];
+const PARAMS={boosterFloor:0.05,Tmax:10,Aphase:6,Bphase1:3,Bphase3:7,BinitY:0.3,rikoMax:0.75,virginBooster:25};
+const dstate={thickness:null,hardness:null,curl:null,aCode:null,aLabel:null,aBoostBase:null,aTier:null,isVirgin:null,bleach:null,perm:null,koshi:null,need:null};
+
+function mkBtn(html,onClick){ const b=document.createElement('button'); b.className='opt-btn'; b.innerHTML=html; b.onclick=onClick; return b; }
+function selOnly(container,btn){ [...container.children].forEach(c=>c.classList.remove('selected')); btn.classList.add('selected'); }
+
+(function(){ const el=document.getElementById('row-thickness'); THICKNESS.forEach(i=>{ const b=mkBtn(i.label,()=>{ dstate.thickness=i; selOnly(el,b); updateDiag(); }); el.appendChild(b); }); })();
+(function(){ const el=document.getElementById('row-hardness'); HARDNESS.forEach(i=>{ const b=mkBtn(i.label,()=>{ dstate.hardness=i; selOnly(el,b); updateDiag(); }); el.appendChild(b); }); })();
+function curlWaveSVG(cycles,amp){
+  const W=180,H=60,midY=H/2;
+  const segs=cycles*2;
+  const segW=W/segs;
+  let d=`M0,${midY}`;
+  for(let i=0;i<segs;i++){
+    const cx=i*segW+segW/2;
+    const cy=midY+(i%2===0?-amp:amp);
+    const ex=(i+1)*segW;
+    d+=` Q${cx.toFixed(1)},${cy.toFixed(1)} ${ex.toFixed(1)},${midY}`;
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" fill="none"><path d="${d}" stroke="#2a2620" stroke-width="3.2" stroke-linecap="round" fill="none"/></svg>`;
+}
+(function(){
+  const el=document.getElementById('row-curl');
+  CURL.forEach(item=>{
+    const card=document.createElement('button');
+    card.type='button';
+    card.className='curl-card';
+    card.innerHTML=`
+      <div class="curl-illust-box">${curlWaveSVG(item.cycles,item.amp)}</div>
+      <div class="curl-radio-row"><span class="curl-radio"></span><span class="clabel">${item.label}</span></div>
+    `;
+    card.addEventListener('click',()=>{
+      dstate.curl=item;
+      [...el.children].forEach(c=>{ c.classList.remove('selected'); c.querySelector('.curl-radio').classList.remove('on'); });
+      card.classList.add('selected');
+      card.querySelector('.curl-radio').classList.add('on');
+      updateDiag();
+    });
+    el.appendChild(card);
+  });
+})();
+
+function applyAResult(code,label,virgin,boost,tier){
+  dstate.aCode=code; dstate.aLabel=label; dstate.isVirgin=virgin; dstate.aBoostBase=boost; dstate.aTier=tier;
+  document.getElementById('virgin-note').classList.toggle('hidden',!virgin);
+  document.getElementById('group-bcd').classList.toggle('hidden',virgin);
+  document.getElementById('group-c').classList.toggle('hidden',virgin);
+  document.getElementById('group-d').classList.toggle('hidden',virgin);
+  if(virgin){ dstate.bleach=null; dstate.perm=null; dstate.koshi=null; }
+  updateDiag();
+}
+(function(){
+  const el=document.getElementById('row-alevel');
+  A_LEVELS.forEach(item=>{
+    const b=mkBtn(item.label,()=>{
+      selOnly(el,b);
+      document.getElementById('subq-somegami').classList.toggle('hidden',item.code!=='kuro');
+      document.getElementById('subq-bleachhist').classList.add('hidden');
+      if(item.code==='kuro'){
+        dstate.aCode=null; dstate.isVirgin=null;
+        document.getElementById('virgin-note').classList.add('hidden');
+        document.getElementById('group-bcd').classList.add('hidden');
+        document.getElementById('group-c').classList.add('hidden');
+        document.getElementById('group-d').classList.add('hidden');
+        updateDiag();
+      } else { applyAResult(item.code,item.label,item.virgin,item.boost,item.tier); }
+    });
+    el.appendChild(b);
+  });
+})();
+(function(){
+  const el=document.getElementById('row-somegami');
+  const optNone=mkBtn('なし(地毛)',()=>{ selOnly(el,optNone); document.getElementById('subq-bleachhist').classList.add('hidden'); const k=KURO_SUB.none; applyAResult(k.code,k.label,k.virgin,k.boost,k.tier); });
+  const optSome=mkBtn('あり(黒染めしている)',()=>{ selOnly(el,optSome); document.getElementById('subq-bleachhist').classList.remove('hidden'); dstate.aCode=null; dstate.isVirgin=null; document.getElementById('virgin-note').classList.add('hidden'); document.getElementById('group-bcd').classList.add('hidden'); document.getElementById('group-c').classList.add('hidden'); document.getElementById('group-d').classList.add('hidden'); updateDiag(); });
+  el.appendChild(optNone); el.appendChild(optSome);
+})();
+(function(){
+  const el=document.getElementById('row-bleachhist');
+  const optNo=mkBtn('なし',()=>{ selOnly(el,optNo); const k=KURO_BLEACH_SUB.no; applyAResult(k.code,k.label,k.virgin,k.boost,k.tier); });
+  const optYes=mkBtn('あり(ブリーチ→黒染め)',()=>{ selOnly(el,optYes); const k=KURO_BLEACH_SUB.yes; applyAResult(k.code,k.label,k.virgin,k.boost,k.tier); });
+  el.appendChild(optNo); el.appendChild(optYes);
+})();
+(function(){ const el=document.getElementById('row-bleach'); BLEACH.forEach(i=>{ const b=mkBtn(i.label,()=>{ dstate.bleach=i; selOnly(el,b); updateDiag(); }); el.appendChild(b); }); })();
+(function(){ const el=document.getElementById('row-perm'); PERM.forEach(i=>{ const b=mkBtn(i.label,()=>{ dstate.perm=i; selOnly(el,b); updateDiag(); }); el.appendChild(b); }); })();
+(function(){ const el=document.getElementById('row-koshi'); KOSHI.forEach(i=>{ const b=mkBtn(i.label,()=>{ dstate.koshi=i; selOnly(el,b); updateDiag(); }); el.appendChild(b); }); })();
+(function(){ const el=document.getElementById('row-need'); [['伸び重視','growth'],['ケア重視','care']].forEach(pair=>{ const b=mkBtn(pair[0],()=>{ dstate.need=pair[1]; selOnly(el,b); updateDiag(); }); el.appendChild(b); }); })();
+
+function diagReady(){
+  if(!dstate.thickness||!dstate.hardness||!dstate.curl||!dstate.need) return false;
+  if(dstate.aCode==null) return false;
+  if(!dstate.isVirgin){ if(!dstate.bleach||!dstate.perm||!dstate.koshi) return false; }
+  return true;
+}
+let lastTR=null;
+function computeTR(){
+  const need=dstate.need;
+  let yellow=0,pale=0,riko=0,thio=0,boosterBase;
+  if(dstate.isVirgin){
+    thio=2; yellow=1; boosterBase=PARAMS.virginBooster;
+  } else {
+    const T=dstate.aTier+dstate.bleach.tier+dstate.perm.tier+dstate.koshi.tier;
+    const trigger=(dstate.bleach.code==='b3')&&(dstate.perm.code==='c2'||dstate.perm.code==='c3')&&(dstate.koshi.code==='d2');
+    boosterBase=dstate.aBoostBase*dstate.bleach.mult*dstate.perm.mult*dstate.koshi.mult;
+    boosterBase=Math.max(PARAMS.boosterFloor,boosterBase);
+    if(need==='growth'){
+      if(trigger){ riko=PARAMS.rikoMax; }
+      else if(T<PARAMS.Aphase){ riko=0; }
+      else { riko=PARAMS.rikoMax*(T-PARAMS.Aphase)/(PARAMS.Tmax-PARAMS.Aphase); }
+      yellow=1-riko; pale=0; thio=0;
+    } else {
+      if(trigger){ riko=PARAMS.rikoMax; pale=1-PARAMS.rikoMax; yellow=0; }
+      else if(T<=PARAMS.Bphase1){ pale=PARAMS.BinitY+(1-PARAMS.BinitY)*T/PARAMS.Bphase1; yellow=1-pale; riko=0; }
+      else if(T<PARAMS.Bphase3){ pale=1; yellow=0; riko=0; }
+      else { riko=PARAMS.rikoMax*(T-PARAMS.Bphase3)/(PARAMS.Tmax-PARAMS.Bphase3); pale=1-riko; yellow=0; }
+    }
+  }
+  const totalAdj=dstate.thickness.adj+dstate.curl.adj+dstate.hardness.adj;
+  const qualityMult=Math.min(QUALITY_CAP,1+totalAdj/100);
+  const finalBooster=boosterBase*qualityMult;
+  const PR={yellow:{tga:0.4,cam:0,tg:0.4},pale:{tga:0,cam:0,tg:0.2},riko:{tga:0,cam:0,tg:0},thio:{tga:10.5,cam:0,tg:0},booster:{tga:0,cam:29,tg:0}};
+  const actOf=p=>p.tga+p.cam+p.tg;
+  const ratioSum=yellow+pale+riko+thio||1;
+  const Vavg=(yellow*actOf(PR.yellow)+pale*actOf(PR.pale)+riko*actOf(PR.riko)+thio*actOf(PR.thio))/ratioSum;
+  const TR=(Vavg+(finalBooster/100)*actOf(PR.booster))/(1+finalBooster/100);
+  return TR;
+}
+function updateDiag(){
+  if(!diagReady()){ document.getElementById('tr-box').style.display='none'; lastTR=null; return; }
+  lastTR=computeTR();
+  document.getElementById('tr-box').style.display='block';
+  document.getElementById('tr-val').innerHTML=lastTR.toFixed(2)+'<span>%</span>';
+}
+function pushTRtoZones(){
+  if(lastTR==null) return;
+  PARTS.forEach(p=>{ document.getElementById('hp-'+p.id+'-adj').value=lastTR.toFixed(2); calcRecipe(p.id); });
+  document.getElementById('share-status').textContent='目安値を6箇所に反映しました。方針・作成量を入力してください。';
+  setTimeout(()=>document.getElementById('share-status').textContent='',3500);
+}
+
+/* ================================================================
+   ③ 記録ビュー（頭部図＋別枠）
+   ================================================================ */
+function zoneDetailText(part){
+  const r=lastRecipe[part];
+  if(!r) return {detail:'未入力',tr:'—'};
+  const parts=r.amts.map(a=>`${a.label} ${a.amt.toFixed(1)}g`).join(' + ');
+  const polLabel=r.pol==='pd'?'伸び重視':'ケア重視';
+  return {detail:`${polLabel}／${parts}`, tr:r.tgt.toFixed(2)+'%'};
+}
+function zoneRowHTML(id){
+  const p=PARTS.find(x=>x.id===id); const d=zoneDetailText(id);
+  return `<tr><td><span class="zsum-dot" style="background:${p.color}"></span></td><td class="zsum-label">${p.label}</td><td class="zsum-detail">${d.detail}</td><td class="zsum-tr">${d.tr}</td></tr>`;
+}
+function renderRecordView(){
+  document.getElementById('shape-summary').innerHTML=['bangs','hemline','top'].map(zoneRowHTML).join('');
+  document.getElementById('depth-summary').innerHTML=['root','middle','end'].map(zoneRowHTML).join('');
+}
+renderRecordView();
+
+/* ================================================================
+   共有コード
+   ================================================================ */
+document.getElementById('share-btn').addEventListener('click', async ()=>{
+  const lines=[];
+  lines.push('【ReBALANCE 6-Zone Recipe Carte】');
+  lines.push('');
+  if(diagReady()){
+    lines.push('■毛髪診断');
+    lines.push(`太さ：${dstate.thickness.label}／硬さ：${dstate.hardness.label}／癖：${dstate.curl.label}`);
+    lines.push(`明度：${dstate.aLabel}${dstate.isVirgin?'':`／ブリーチ：${dstate.bleach.label}／縮毛矯正・パーマ：${dstate.perm.label}／ハリコシ：${dstate.koshi.label}`}`);
+    lines.push(`ご要望：${dstate.need==='growth'?'伸び重視':'ケア重視'}`);
+    lines.push(`目標還元値(目安)：${lastTR!==null?lastTR.toFixed(2)+'%':'—'}`);
+    lines.push('');
+  }
+  lines.push('■頭部図３箇所');
+  ['bangs','hemline','top'].forEach(id=>{ const p=PARTS.find(x=>x.id===id); const d=zoneDetailText(id); lines.push(`${p.label}：${d.tr}／${d.detail}`); });
+  lines.push('');
+  lines.push('■根本・中間・毛先（別枠）');
+  ['root','middle','end'].forEach(id=>{ const p=PARTS.find(x=>x.id===id); const d=zoneDetailText(id); lines.push(`${p.label}：${d.tr}／${d.detail}`); });
+  lines.push('');
+  lines.push('※ReBALANCE 6-Zone Recipe Carte');
+  const text=lines.join('\n');
+  const statusEl=document.getElementById('share-status');
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){ await navigator.clipboard.writeText(text); }
+    else { const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
+    statusEl.textContent='コピーしました。LINE等に貼り付けてご利用ください。';
+  } catch(e){ statusEl.textContent='コピーに失敗しました。もう一度お試しください。'; }
+  setTimeout(()=>{ statusEl.textContent=''; },4000);
+});
+</script>
+</body>
+</html>
